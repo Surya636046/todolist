@@ -1,5 +1,5 @@
 {
-  "outputDirectory": "artifacts/todo-app/dist/public",
+  "outputDirectory": "public",
   "rewrites": [
     {
       "source": "/api/(.*)",
