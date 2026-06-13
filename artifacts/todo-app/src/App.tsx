@@ -131,20 +131,20 @@ export default function App() {
     }
   };
 
-  const handleExport = (format: "json" | "csv") => {
+  const handleExport = (exportFormat: "json" | "csv") => {
     try {
       let content = "";
       let type = "";
-      let filename = `tasks-${format(new Date(), "yyyyMMdd-HHmm")}.${format}`;
+      let filename = `tasks-${format(new Date(), "yyyyMMdd-HHmm")}.${exportFormat}`;
 
-      if (format === "json") {
+      if (exportFormat === "json") {
         content = JSON.stringify(tasks, null, 2);
         type = "application/json";
       } else {
-        const headers = "id,title,completed,priority,dueDate,categories,createdAt,order\\n";
+        const headers = "id,title,completed,priority,dueDate,categories,createdAt,order\n";
         const rows = tasks.map(t => 
           `"${t.id}","${t.title.replace(/"/g, '""')}","${t.completed}","${t.priority}","${t.dueDate || ''}","${t.categories.join(';')}","${t.createdAt}","${t.order}"`
-        ).join("\\n");
+        ).join("\n");
         content = headers + rows;
         type = "text/csv";
       }
@@ -338,7 +338,7 @@ export default function App() {
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, scale: 0.95 }}
                   draggable
-                  onDragStart={(e) => handleDragStart(e, task.id)}
+                  onDragStart={(e: any) => handleDragStart(e, task.id)}
                   onDragOver={handleDragOver}
                   onDrop={(e) => handleDrop(e, task.id)}
                   className={`group flex items-center gap-3 p-4 rounded-xl border bg-card shadow-sm hover:shadow-md transition-all ${task.completed ? 'opacity-60' : ''}`}
