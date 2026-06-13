@@ -1,26 +1,9 @@
 {
-  "version": 2,
-  "builds": [
+  "outputDirectory": "artifacts/todo-app/dist/public",
+  "rewrites": [
     {
-      "src": "artifacts/api-server/src/index.ts",
-      "use": "@vercel/node"
-    },
-    {
-      "src": "package.json",
-      "use": "@vercel/static-build",
-      "config": {
-        "distDir": "artifacts/todo-app/dist/public"
-      }
-    }
-  ],
-  "routes": [
-    {
-      "src": "/api/(.*)",
-      "dest": "artifacts/api-server/src/index.ts"
-    },
-    {
-      "src": "/(.*)",
-      "dest": "artifacts/todo-app/dist/public/$1"
+      "source": "/api/(.*)",
+      "destination": "/api"
     }
   ]
 }
