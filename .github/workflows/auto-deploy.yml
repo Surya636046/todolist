@@ -1,0 +1,60 @@
+name: Auto Deploy to Vercel
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Install pnpm
+        run: npm install -g pnpm
+
+      - name: Install dependencies (workspace)
+        run: pnpm install --frozen-lockfile
+
+      - name: Build frontend (todo-app)
+        working-directory: ./todo-app
+        run: pnpm build
+
+      - name: Build API (api)
+        working-directory: ./api
+        run: pnpm build
+
+      - name: Install Supabase CLI
+        if: secrets.SUPABASE_ACCESS_TOKEN != ''
+        run: npm install -g supabase
+
+      - name: Push Supabase migrations (optional)
+        if: secrets.SUPABASE_ACCESS_TOKEN != '' && secrets.SUPABASE_PROJECT_REF != ''
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+          SUPABASE_PROJECT_REF: ${{ secrets.SUPABASE_PROJECT_REF }}
+        run: |
+          supabase login --token "$SUPABASE_ACCESS_TOKEN" || true
+          supabase link --project-ref "$SUPABASE_PROJECT_REF" || true
+          supabase db push --project-ref "$SUPABASE_PROJECT_REF"
+
+      - name: Install Vercel CLI
+        run: npm install -g vercel
+
+      - name: Deploy frontend to Vercel (todo-app)
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+        working-directory: ./todo-app
+        run: npx vercel --prod --token "$VERCEL_TOKEN" --confirm
+
+      - name: Deploy API to Vercel (api)
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+        working-directory: ./api
+        run: npx vercel --prod --token "$VERCEL_TOKEN" --confirm
